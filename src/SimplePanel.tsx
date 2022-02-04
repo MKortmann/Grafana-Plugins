@@ -9,6 +9,33 @@ interface Props extends PanelProps<SimpleOptions> {}
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const theme = useTheme();
   const styles = getStyles();
+
+  let color: string;
+
+  switch(options.circleColor) {
+    case 'red':
+      color = theme.palette.redBase;
+      break;
+    case 'green':
+      color = theme.palette.greenBase;
+      break;
+    case 'blue':
+      color = theme.palette.blue95;
+      break;
+  }
+
+  let radii: any = data.series
+    .map(series => series.fields.find(field => field.type === 'number'))
+    .map(field => field?.values.get(field.values.length -1))
+
+  radii = radii < 5 ? 5 : radii;
+
+  radii = Math.trunc(radii)*3;
+
+  color = radii % 2 === 0 ? theme.palette.brandDanger : theme.palette.brandSuccess;
+
+
+
   return (
     <div
       className={cx(
@@ -28,7 +55,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
         viewBox={`-${width / 2} -${height / 2} ${width} ${height}`}
       >
         <g>
-          <circle style={{ fill: `${theme.isLight ? theme.palette.greenBase : theme.palette.blue95}` }} r={100} />
+          <circle style={{ fill: `${color}`}} r={radii} />
+          {/* <circle style={{ fill: `${theme.isLight ? theme.palette.greenBase : theme.palette.brandDanger}` }} r={100} /> */}
         </g>
       </svg>
 
@@ -37,9 +65,12 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
           <div
             className={css`
               font-size: ${theme.typography.size[options.seriesCountSize]};
+              font-family: ${theme.typography.fontFamily[options.fontFace]};
+              font-weight: ${theme.typography.weight[options.fontWeight]};
             `}
           >
             Number of series: {data.series.length}
+            Radius: {radii}
           </div>
         )}
         <div>Text option value: {options.text}</div>
@@ -65,4 +96,4 @@ const getStyles = stylesFactory(() => {
       padding: 10px;
     `,
   };
-});
+})
