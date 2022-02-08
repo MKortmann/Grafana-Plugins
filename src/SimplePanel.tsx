@@ -1,43 +1,43 @@
 import React from 'react';
-import { PanelProps } from '@grafana/data';
+import { dateTimeParse, FieldType, PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
 // import { css, cx } from 'emotion';
-import { useTheme } from '@grafana/ui';
-import * as d3 from 'd3';
+// import { useTheme } from '@grafana/ui';
+// import * as d3 from 'd3';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
-  const theme = useTheme();
-
-  const values = [4,8,15, 16, 23, 42];
-
-  const scale = d3
-    .scaleLinear()
-    .domain([0, d3.max(values) || 0.0])
-    .range([0, width])
-
-  const axis = d3.axisBottom(scale)
-
-  const padding = 20;
-  const chartHeight = height - padding;
-  const barHeight = chartHeight / values.length;
-
+  const { limit } = options;
   return (
-    <svg width={width} height={height}>
-      <g>
-        {values.map((value, i) => (
-          <rect x={0} y={i * barHeight} width={scale(value)} height={barHeight - 1} fill={theme.palette.greenBase} />
-        ))}
-      </g>
-      <g 
-        transform={`translate(0, ${chartHeight})`}
-        ref={node => {
-          d3.select(node).call(axis as any)
-        }}
-      />
-    </svg>
-  )
+    <div style={{ overflow: 'auto', width, height }}>
+      {data.series.map((frame) => {
+        return (
+          <table style={{ width: '100%' }}>
+            <thead>
+              <tr>
+                {frame.fields.map((field) => (
+                  <th>{field.name}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Array.from({ length: frame.length > limit ? limit : frame.length }).map((_, i) => {
+                return (
+                  <tr>
+                    {frame.fields.map((field) => {
+                      if (field.type === FieldType.time) {
+                        return <td>{dateTimeParse(field.values.get(i)).toISOString()}</td>;
+                      }
+                      return <td>{field.values.get(i)}</td>;
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        );
+      })}
+    </div>
+  );
 };
-
-

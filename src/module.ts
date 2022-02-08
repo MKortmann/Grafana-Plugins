@@ -2,8 +2,14 @@ import { PanelPlugin } from '@grafana/data';
 import { SimpleOptions } from './types';
 import { SimplePanel } from './SimplePanel';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions((builder) => {
+export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).useFieldConfig().setPanelOptions((builder) => {
   return builder
+    .addNumberInput({
+      path: 'limit',
+      name: 'Limit',
+      description: 'Limits the number of rows displayed',
+      defaultValue: 10,
+    })
     .addTextInput({
       path: 'text',
       name: 'Simple text option',
