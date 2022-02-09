@@ -1,5 +1,5 @@
 import React from 'react';
-import { dateTimeParse, FieldType, PanelProps } from '@grafana/data';
+import { PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
 // import { css, cx } from 'emotion';
 // import { useTheme } from '@grafana/ui';
@@ -26,10 +26,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
                 return (
                   <tr>
                     {frame.fields.map((field) => {
-                      if (field.type === FieldType.time) {
-                        return <td>{dateTimeParse(field.values.get(i)).toISOString()}</td>;
-                      }
-                      return <td>{field.values.get(i)}</td>;
+                      const value = field.display!(field.values.get(i));
+                      return <td style={{ color: value.color }}>{value.text + (value.suffix ? value : '')}</td>;
                     })}
                   </tr>
                 );
